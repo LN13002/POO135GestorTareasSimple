@@ -33,7 +33,6 @@ public class Proyecto {
 
     private BigDecimal presupuesto;
 
-
     public Long getId() {
         return id;
     }
@@ -89,3 +88,4 @@ public class Proyecto {
     public void setPresupuesto(BigDecimal presupuesto) {
         this.presupuesto = presupuesto;
     }
+}
