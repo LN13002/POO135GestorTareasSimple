@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
 import com.equipo7.apigestorproyectos.dto.respuesta.EmpleadoResponseDTO;
 import com.equipo7.apigestorproyectos.dto.solicitud.EmpleadoCreateDTO;
@@ -13,9 +14,13 @@ import com.equipo7.apigestorproyectos.exceptions.ResourceNotFoundException;
 import com.equipo7.apigestorproyectos.models.Empleado;
 import com.equipo7.apigestorproyectos.repository.EmpleadoRepository;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+@Service
 public class EmpleadoServiceImpl implements EmpleadoService {
 
-    private final EmpleadoRepository repo = null;
+    private final EmpleadoRepository repo;
 
     @Override
     public Page<EmpleadoResponseDTO> list(String q, Boolean activo, Pageable pageable) {

@@ -1,7 +1,11 @@
 package com.equipo7.apigestorproyectos.controllers;
 
+import lombok.RequiredArgsConstructor;
+
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Sort;
 
 import com.equipo7.apigestorproyectos.dto.respuesta.EmpleadoResponseDTO;
 import com.equipo7.apigestorproyectos.dto.solicitud.EmpleadoCreateDTO;
@@ -27,12 +32,13 @@ import jakarta.validation.Valid;
 @RequiredArgsConstructor
 @Validated
 public class EmpleadoController {
-    private final EmpleadoService service = null;
+    private final EmpleadoService service;
 
     @GetMapping
-    public Page<EmpleadoResponseDTO> list(@RequestParam(required = false) String q,
+    public Page<EmpleadoResponseDTO> list(
+            @RequestParam(required = false) String q,
             @RequestParam(required = false) Boolean activo,
-            Pageable pageable) {
+            @ParameterObject @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         return service.list(q, activo, pageable);
     }
 
