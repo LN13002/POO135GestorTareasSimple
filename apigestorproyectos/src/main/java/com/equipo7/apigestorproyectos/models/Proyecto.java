@@ -2,15 +2,10 @@ package com.equipo7.apigestorproyectos.models;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.ArrayList;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "proyectos")
@@ -32,6 +27,14 @@ public class Proyecto {
     private EstadoProyecto estado;
 
     private BigDecimal presupuesto;
+
+    // Relacion con tareas (necesaria para JPQL y el diseño relacional)
+    // Un proyecto tiene muchas tareas
+    @OneToMany(mappedBy = "proyecto",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true, // Al quitar una tarea de la lista se elimina de la BD
+            fetch = FetchType.LAZY)
+    private List<Tarea> tareas = new ArrayList<>();
 
     public Long getId() {
         return id;
