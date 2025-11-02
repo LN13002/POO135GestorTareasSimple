@@ -3,6 +3,7 @@ package com.equipo7.apigestorproyectos.controllers;
 import lombok.RequiredArgsConstructor;
 
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -29,11 +30,14 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/empleados")
-@RequiredArgsConstructor
 @Validated
 public class EmpleadoController {
     private final EmpleadoService service;
 
+    @Autowired
+    public EmpleadoController(EmpleadoService service) {
+        this.service = service;
+    }
     @GetMapping
     public Page<EmpleadoResponseDTO> list(
             @RequestParam(required = false) String q,

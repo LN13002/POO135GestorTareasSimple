@@ -17,7 +17,7 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, Long> {
             SELECT COALESCE(SUM(rh.horas),0)
             FROM proyecto p
             JOIN p.tareas t
-            JOIN to.registrosHoras rh
+            JOIN t.registrosHoras rh
             WHERE p.id = :proyectoId
             """)
     BigDecimal sumarHorasTotalesPorProyecto(Long proyectoId);

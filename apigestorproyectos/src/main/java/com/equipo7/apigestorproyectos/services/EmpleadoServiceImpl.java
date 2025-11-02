@@ -1,5 +1,6 @@
 package com.equipo7.apigestorproyectos.services;
 
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,13 +15,16 @@ import com.equipo7.apigestorproyectos.exceptions.ResourceNotFoundException;
 import com.equipo7.apigestorproyectos.models.Empleado;
 import com.equipo7.apigestorproyectos.repository.EmpleadoRepository;
 
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+
 @Service
 public class EmpleadoServiceImpl implements EmpleadoService {
 
     private final EmpleadoRepository repo;
+
+    public EmpleadoServiceImpl(EmpleadoRepository repo) {
+        this.repo = repo;
+    }
 
     @Override
     public Page<EmpleadoResponseDTO> list(String q, Boolean activo, Pageable pageable) {
