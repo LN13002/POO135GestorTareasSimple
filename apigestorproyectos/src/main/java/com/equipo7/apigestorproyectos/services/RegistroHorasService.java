@@ -12,20 +12,20 @@ import com.equipo7.apigestorproyectos.dto.RegistroHorasDTO;
 import com.equipo7.apigestorproyectos.models.Empleado;
 import com.equipo7.apigestorproyectos.models.RegistroHoras;
 import com.equipo7.apigestorproyectos.models.Tarea;
-import com.equipo7.apigestorproyectos.repositories.RegistroHorasRepository;
 import com.equipo7.apigestorproyectos.repository.EmpleadoRepository;
+import com.equipo7.apigestorproyectos.repository.RegistroHorasRepository;
+import com.equipo7.apigestorproyectos.repository.TareaRepository;
 
 @Service
 public class RegistroHorasService {
-
     @Autowired
     private RegistroHorasRepository registroHorasRepository;
 
     @Autowired
     private EmpleadoRepository empleadoRepository;
 
-    // @Autowired
-    // private TareaRepository tareaRepository;
+    @Autowired
+    private TareaRepository tareaRepository;
 
     // guardar un nuevo registro de horas
     public RegistroHorasDTO guardarRegistro(RegistroHorasDTO dto) {
@@ -37,14 +37,14 @@ public class RegistroHorasService {
 
         // Buscar empleado y tarea por ID
         Optional<Empleado> empleado = empleadoRepository.findById(dto.getEmpleadoId());
-        // Optional<Tarea> tarea = tareaRepository.findById(dto.getTareaId());
+        Optional<Tarea> tarea = tareaRepository.findById(dto.getTareaId());
 
-        // if (empleado.isPresent() && tarea.isPresent()) {
-        // registro.setEmpleado(empleado.get());
-        // registro.setTarea(tarea.get());
-        // } else {
-        // throw new RuntimeException("Empleado o tarea no encontrados");
-        // }
+        if (empleado.isPresent() && tarea.isPresent()) {
+            registro.setEmpleado(empleado.get());
+            registro.setTarea(tarea.get());
+        } else {
+            throw new RuntimeException("Empleado o tarea no encontrados");
+        }
 
         registroHorasRepository.save(registro);
         dto.setId(registro.getId());
