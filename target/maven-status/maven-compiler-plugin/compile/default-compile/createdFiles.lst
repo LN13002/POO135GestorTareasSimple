@@ -1,0 +1,9 @@
+com\equipo7\apigestorproyectos\models\RegistroHoras.class
+com\equipo7\apigestorproyectos\models\Empleado.class
+com\equipo7\apigestorproyectos\models\Prioridad.class
+com\equipo7\apigestorproyectos\ApigestorproyectosApplication.class
+com\equipo7\apigestorproyectos\models\Proyecto.class
+com\equipo7\apigestorproyectos\controllers\HelloController.class
+com\equipo7\apigestorproyectos\models\EstadoProyecto.class
+com\equipo7\apigestorproyectos\models\EstadoTarea.class
+com\equipo7\apigestorproyectos\models\Tarea.class
