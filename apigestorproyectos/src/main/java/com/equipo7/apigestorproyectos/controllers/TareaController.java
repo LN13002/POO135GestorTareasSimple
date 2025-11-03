@@ -4,22 +4,16 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.equipo7.apigestorproyectos.models.Tarea;
 import com.equipo7.apigestorproyectos.services.TareaService;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
-
 @RestController
 @RequestMapping("/api/tareas")
+@CrossOrigin(origins = "*") // opcional: permite llamadas desde frontend
 public class TareaController {
+
     @Autowired
     private TareaService tareaService;
 
@@ -36,8 +30,9 @@ public class TareaController {
     }
 
     @PostMapping
-    public Tarea crearTarea(@RequestBody Tarea tarea) {
-        return tareaService.guardarTarea(tarea);
+    public ResponseEntity<Tarea> crearTarea(@RequestBody Tarea tarea) {
+        Tarea nuevaTarea = tareaService.guardarTarea(tarea);
+        return ResponseEntity.ok(nuevaTarea);
     }
 
     @PutMapping("/{id}")
@@ -46,9 +41,10 @@ public class TareaController {
                 .map(tarea -> {
                     tarea.setNombre(tareaActualizada.getNombre());
                     tarea.setDescripcion(tareaActualizada.getDescripcion());
-                    tarea.setFechaInicio(tareaActualizada.getFechaInicio());
-                    tarea.setFechaFin(tareaActualizada.getFechaFin());
-                    tarea.setCompletada(tareaActualizada.isCompletada());
+                    tarea.setFechaVencimiento(tareaActualizada.getFechaVencimiento());
+                    tarea.setEstado(tareaActualizada.getEstado());
+                    tarea.setPrioridad(tareaActualizada.getPrioridad());
+                    tarea.setEmpleadoAsignado(tareaActualizada.getEmpleadoAsignado());
                     return ResponseEntity.ok(tareaService.guardarTarea(tarea));
                 })
                 .orElse(ResponseEntity.notFound().build());
