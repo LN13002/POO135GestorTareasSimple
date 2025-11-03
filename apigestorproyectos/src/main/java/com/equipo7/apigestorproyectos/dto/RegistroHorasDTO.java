@@ -1,46 +1,34 @@
-package com.equipo7.apigestorproyectos.models;
+package com.equipo7.apigestorproyectos.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-
-@Entity
-@Table(name = "registro_horas")
-public class RegistroHoras {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class RegistroHorasDTO {
     private Long id;
-
-    // Relación con la tarea
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tarea_id", nullable = false)
-    private Tarea tarea;
-
-    // Relación con el empleado
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "empleado_id", nullable = false)
-    private Empleado empleado;
-
+    private Long tareaId;
+    private Long empleadoId;
     private LocalDate fecha;
-
     private BigDecimal horasRegistradas;
-
-    @Column(length = 1000)
     private String descripcionActividad;
-
     private LocalDateTime fechaRegistro;
 
+    // Constructores
+    public RegistroHorasDTO() {
+    }
+
+    public RegistroHorasDTO(Long id, Long tareaId, Long empleadoId, LocalDate fecha, BigDecimal horasRegistradas,
+            String descripcionActividad, LocalDateTime fechaRegistro) {
+        this.id = id;
+        this.tareaId = tareaId;
+        this.empleadoId = empleadoId;
+        this.fecha = fecha;
+        this.horasRegistradas = horasRegistradas;
+        this.descripcionActividad = descripcionActividad;
+        this.fechaRegistro = fechaRegistro;
+    }
+
+    // getters y setters
     public Long getId() {
         return id;
     }
@@ -49,20 +37,20 @@ public class RegistroHoras {
         this.id = id;
     }
 
-    public Tarea getTarea() {
-        return tarea;
+    public Long getTareaId() {
+        return tareaId;
     }
 
-    public void setTarea(Tarea tarea) {
-        this.tarea = tarea;
+    public void setTareaId(Long tareaId) {
+        this.tareaId = tareaId;
     }
 
-    public Empleado getEmpleado() {
-        return empleado;
+    public Long getEmpleadoId() {
+        return empleadoId;
     }
 
-    public void setEmpleado(Empleado empleado) {
-        this.empleado = empleado;
+    public void setEmpleadoId(Long empleadoId) {
+        this.empleadoId = empleadoId;
     }
 
     public LocalDate getFecha() {
