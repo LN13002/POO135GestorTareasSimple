@@ -11,7 +11,7 @@ import com.equipo7.apigestorproyectos.services.TareaService;
 
 @RestController
 @RequestMapping("/api/tareas")
-@CrossOrigin(origins = "*") // opcional: permite llamadas desde frontend
+@CrossOrigin(origins = "*") 
 public class TareaController {
 
     @Autowired

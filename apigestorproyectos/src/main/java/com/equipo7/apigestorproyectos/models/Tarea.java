@@ -2,6 +2,8 @@ package com.equipo7.apigestorproyectos.models;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,8 +14,8 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = { "proyecto", "empleadoAsignado" })
-@EqualsAndHashCode(exclude = { "proyecto", "empleadoAsignado" })
+@ToString(exclude = { "proyecto", "empleadoAsignado", "registrosHoras" })
+@EqualsAndHashCode(exclude = { "proyecto", "empleadoAsignado", "registrosHoras" })
 public class Tarea {
 
     @Id
@@ -42,4 +44,7 @@ public class Tarea {
 
     @Enumerated(EnumType.STRING)
     private Prioridad prioridad;
+
+    @OneToMany(mappedBy = "tarea", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RegistroHoras> registrosHoras = new ArrayList<>();
 }

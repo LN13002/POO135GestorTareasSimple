@@ -4,11 +4,14 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.equipo7.apigestorproyectos.models.Tarea;
 import com.equipo7.apigestorproyectos.repository.TareaRepository;
 
+@Service
 public class TareaService {
+
     @Autowired
     private TareaRepository tareaRepository;
 
