@@ -1,4 +1,4 @@
-package com.equipo7.apigestorproyectos.dto;
+package com.equipo7.apigestorproyectos.dto.respuesta;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TareaDTO {
+public class TareaResponseDTO {
     private Long id;
     private String nombre;
     private String descripcion;
@@ -23,7 +23,6 @@ public class TareaDTO {
 
     private Long empleadoAsignadoId;
     private String empleadoAsignadoNombre;
-    private String empleadoAsignadoApellido;
 
     private LocalDateTime fechaCreacion;
     private LocalDate fechaVencimiento;
