@@ -4,8 +4,6 @@ import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import java.time.LocalDate;
-
 // Definiendo informacion requerida para crear un proyecto
 public record ProyectoCreateDTO(
         @NotBlank @Size(max = 255) String nombre,
