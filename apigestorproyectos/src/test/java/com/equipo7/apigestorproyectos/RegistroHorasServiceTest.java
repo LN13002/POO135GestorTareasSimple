@@ -68,8 +68,6 @@ class RegistroHorasServiceTest {
         registroHoras.setEmpleado(empleado);
         registroHoras.setTarea(tarea);
         registroHoras.setFecha(LocalDate.now());
-        registroHoras.setHorasTrabajadas(8.0); // Double, no BigDecimal
-        registroHoras.setDescripcion("Desarrollo"); // descripcion, no descripcionActividad
         registroHoras.setFechaRegistro(LocalDateTime.now());
 
         registroHorasDTO = new RegistroHorasDTO();
