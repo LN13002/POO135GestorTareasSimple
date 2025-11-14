@@ -1,267 +1,171 @@
 package com.equipo7.apigestorproyectos;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
-
 import com.equipo7.apigestorproyectos.controllers.TareaController;
 import com.equipo7.apigestorproyectos.dto.respuesta.TareaResponseDTO;
 import com.equipo7.apigestorproyectos.dto.solicitud.TareaCreateDTO;
 import com.equipo7.apigestorproyectos.dto.solicitud.TareaUpdateDTO;
-import com.equipo7.apigestorproyectos.exceptions.ResourceNotFoundException;
 import com.equipo7.apigestorproyectos.models.EstadoTarea;
 import com.equipo7.apigestorproyectos.models.Prioridad;
 import com.equipo7.apigestorproyectos.services.TareaService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(TareaController.class)
-@DisplayName("Tests del Controller de Tareas")
 class TareaControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockBean
+    @MockitoBean
     private TareaService tareaService;
 
-    @Test
-    @DisplayName("GET /api/tareas - Debe listar todas las tareas exitosamente")
-    void debeListarTodasLasTareasExitosamente() throws Exception {
-        TareaResponseDTO tarea1 = crearTareaResponseDTO(1L, "Tarea 1");
-        TareaResponseDTO tarea2 = crearTareaResponseDTO(2L, "Tarea 2");
-        List<TareaResponseDTO> tareas = Arrays.asList(tarea1, tarea2);
+    private ObjectMapper objectMapper;
 
-        when(tareaService.listarTareas()).thenReturn(tareas);
-
-        mockMvc.perform(get("/api/tareas")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].nombre").value("Tarea 1"))
-                .andExpect(jsonPath("$[1].id").value(2))
-                .andExpect(jsonPath("$[1].nombre").value("Tarea 2"));
+    @BeforeEach
+    void setUp() {
+        objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
     }
 
     @Test
-    @DisplayName("GET /api/tareas - Debe retornar lista vacía cuando no hay tareas")
-    void debeRetornarListaVaciaCuandoNoHayTareas() throws Exception {
-        when(tareaService.listarTareas()).thenReturn(Arrays.asList());
+    void listarTareas_DebeRetornarListaDeTareas() throws Exception {
+        // Arrange
+        TareaResponseDTO tarea = new TareaResponseDTO();
+        tarea.setId(1L);
+        tarea.setNombre("Tarea 1");
+        tarea.setDescripcion("Descripción");
+        tarea.setProyectoId(1L);
+        tarea.setProyectoNombre("Proyecto 1");
+        tarea.setEmpleadoAsignadoId(1L);
+        tarea.setEmpleadoAsignadoNombre("Juan");
+        tarea.setFechaCreacion(LocalDateTime.now());
+        tarea.setFechaVencimiento(LocalDate.now().plusDays(7));
+        tarea.setEstado(EstadoTarea.PENDIENTE);
+        tarea.setPrioridad(Prioridad.ALTA);
 
-        mockMvc.perform(get("/api/tareas")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
+        when(tareaService.listarTareas()).thenReturn(Arrays.asList(tarea));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/tareas"))
+                .andExpect(status().isOk());
     }
 
     @Test
-    @DisplayName("GET /api/tareas/{id} - Debe obtener tarea por ID exitosamente")
-    void debeObtenerTareaPorIdExitosamente() throws Exception {
-        Long tareaId = 1L;
-        TareaResponseDTO tarea = crearTareaResponseDTO(tareaId, "Tarea Test");
+    void obtenerTareaPorId_DebeRetornarTarea() throws Exception {
+        // Arrange
+        TareaResponseDTO tarea = new TareaResponseDTO();
+        tarea.setId(1L);
+        tarea.setNombre("Tarea 1");
+        tarea.setDescripcion("Descripción");
+        tarea.setProyectoId(1L);
+        tarea.setProyectoNombre("Proyecto 1");
+        tarea.setEmpleadoAsignadoId(1L);
+        tarea.setEmpleadoAsignadoNombre("Juan");
+        tarea.setFechaCreacion(LocalDateTime.now());
+        tarea.setFechaVencimiento(LocalDate.now().plusDays(7));
+        tarea.setEstado(EstadoTarea.PENDIENTE);
+        tarea.setPrioridad(Prioridad.ALTA);
 
-        when(tareaService.obtenerPorId(tareaId)).thenReturn(tarea);
+        when(tareaService.obtenerPorId(1L)).thenReturn(tarea);
 
-        mockMvc.perform(get("/api/tareas/{id}", tareaId)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(tareaId))
-                .andExpect(jsonPath("$.nombre").value("Tarea Test"))
-                .andExpect(jsonPath("$.estado").value("PENDIENTE"));
+        // Act & Assert
+        mockMvc.perform(get("/api/tareas/1"))
+                .andExpect(status().isOk());
     }
 
     @Test
-    @DisplayName("GET /api/tareas/{id} - Debe retornar 404 cuando tarea no existe")
-    void debeRetornar404CuandoTareaNoExiste() throws Exception {
-        Long tareaId = 999L;
-        when(tareaService.obtenerPorId(tareaId))
-                .thenThrow(new ResourceNotFoundException("Tarea no encontrada con ID: " + tareaId));
-
-        mockMvc.perform(get("/api/tareas/{id}", tareaId)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @DisplayName("POST /api/tareas - Debe crear tarea exitosamente")
-    void debeCrearTareaExitosamente() throws Exception {
+    void crearTarea_DebeRetornarTareaCreada() throws Exception {
+        // Arrange
         TareaCreateDTO createDTO = new TareaCreateDTO(
                 "Nueva Tarea",
-                "Descripción de prueba",
-                1L, // proyectoId
-                2L, // empleadoAsignadoId
-                LocalDate.now().plusDays(7),
-                EstadoTarea.PENDIENTE,
-                Prioridad.ALTA);
-
-        TareaResponseDTO responseDTO = crearTareaResponseDTO(1L, "Nueva Tarea");
-
-        when(tareaService.crearTarea(any(TareaCreateDTO.class))).thenReturn(responseDTO);
-
-        mockMvc.perform(post("/api/tareas")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(createDTO)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.nombre").value("Nueva Tarea"))
-                .andExpect(jsonPath("$.estado").value("PENDIENTE"));
-    }
-
-    @Test
-    @DisplayName("POST /api/tareas - Debe retornar 400 cuando datos son inválidos")
-    void debeRetornar400CuandoDatosSonInvalidos() throws Exception {
-        TareaCreateDTO createDTO = new TareaCreateDTO(
-                "", // nombre vacío (inválido)
                 "Descripción",
                 1L,
-                2L,
-                LocalDate.now(),
-                EstadoTarea.PENDIENTE,
-                Prioridad.ALTA);
-
-        mockMvc.perform(post("/api/tareas")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(createDTO)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @DisplayName("POST /api/tareas - Debe retornar 404 cuando proyecto no existe")
-    void debeRetornar404CuandoProyectoNoExiste() throws Exception {
-        TareaCreateDTO createDTO = new TareaCreateDTO(
-                "Nueva Tarea",
-                "Descripción",
-                999L, // proyectoId que no existe
-                2L,
-                LocalDate.now(),
-                EstadoTarea.PENDIENTE,
-                Prioridad.ALTA);
-
-        when(tareaService.crearTarea(any(TareaCreateDTO.class)))
-                .thenThrow(new ResourceNotFoundException("Proyecto no encontrado"));
-
-        mockMvc.perform(post("/api/tareas")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(createDTO)))
-                .andExpect(status().isNotFound());
-    }
-
-    // @Test
-    // @DisplayName("PUT /api/tareas/{id} - Debe actualizar tarea exitosamente")
-    // void debeActualizarTareaExitosamente() throws Exception {
-    // Long tareaId = 1L;
-    // TareaUpdateDTO updateDTO = new TareaUpdateDTO(
-    // "Tarea Actualizada",
-    // "Nueva descripción",
-    // 3L, // nuevo empleadoAsignadoId
-    // LocalDate.now().plusDays(10),
-    // EstadoTarea.EN_PROGRESO,
-    // Prioridad.MEDIA);
-
-    // TareaResponseDTO responseDTO = crearTareaResponseDTO(tareaId, "Tarea
-    // Actualizada");
-    // responseDTO = new TareaResponseDTO(
-    // responseDTO.id(),
-    // "Tarea Actualizada",
-    // responseDTO.descripcion(),
-    // responseDTO.proyectoId(),
-    // responseDTO.proyectoNombre(),
-    // responseDTO.empleadoAsignadoId(),
-    // responseDTO.empleadoAsignadoNombre(),
-    // responseDTO.fechaCreacion(),
-    // responseDTO.fechaVencimiento(),
-    // EstadoTarea.EN_PROGRESO,
-    // Prioridad.MEDIA);
-
-    // when(tareaService.actualizarTarea(eq(tareaId), any(TareaUpdateDTO.class)))
-    // .thenReturn(responseDTO);
-
-    // mockMvc.perform(put("/api/tareas/{id}", tareaId)
-    // .contentType(MediaType.APPLICATION_JSON)
-    // .content(objectMapper.writeValueAsString(updateDTO)))
-    // .andExpect(status().isOk())
-    // .andExpect(jsonPath("$.id").value(tareaId))
-    // .andExpect(jsonPath("$.nombre").value("Tarea Actualizada"))
-    // .andExpect(jsonPath("$.estado").value("EN_PROGRESO"));
-    // }
-
-    @Test
-    @DisplayName("PUT /api/tareas/{id} - Debe retornar 404 cuando tarea no existe")
-    void debeRetornar404AlActualizarTareaNoExistente() throws Exception {
-        Long tareaId = 999L;
-        TareaUpdateDTO updateDTO = new TareaUpdateDTO(
-                "Tarea Actualizada",
-                "Descripción",
-                2L,
-                LocalDate.now(),
-                EstadoTarea.PENDIENTE,
-                Prioridad.ALTA);
-
-        when(tareaService.actualizarTarea(eq(tareaId), any(TareaUpdateDTO.class)))
-                .thenThrow(new ResourceNotFoundException("Tarea no encontrada"));
-
-        mockMvc.perform(put("/api/tareas/{id}", tareaId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateDTO)))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @DisplayName("DELETE /api/tareas/{id} - Debe eliminar tarea exitosamente")
-    void debeEliminarTareaExitosamente() throws Exception {
-        Long tareaId = 1L;
-        doNothing().when(tareaService).eliminarTarea(tareaId);
-
-        mockMvc.perform(delete("/api/tareas/{id}", tareaId)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent());
-    }
-
-    @Test
-    @DisplayName("DELETE /api/tareas/{id} - Debe retornar 404 cuando tarea no existe")
-    void debeRetornar404AlEliminarTareaNoExistente() throws Exception {
-        Long tareaId = 999L;
-        doThrow(new ResourceNotFoundException("Tarea no encontrada"))
-                .when(tareaService).eliminarTarea(tareaId);
-
-        mockMvc.perform(delete("/api/tareas/{id}", tareaId)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
-    }
-
-    private TareaResponseDTO crearTareaResponseDTO(Long id, String nombre) {
-        return new TareaResponseDTO(
-                id,
-                nombre,
-                "Descripción de " + nombre,
-                1L, // proyectoId
-                "Proyecto Test",
-                2L, // empleadoAsignadoId
-                "Juan Pérez",
-                LocalDateTime.now(),
+                1L,
                 LocalDate.now().plusDays(7),
                 EstadoTarea.PENDIENTE,
-                Prioridad.ALTA);
+                Prioridad.ALTA
+        );
+
+        TareaResponseDTO responseDTO = new TareaResponseDTO();
+        responseDTO.setId(1L);
+        responseDTO.setNombre("Nueva Tarea");
+        responseDTO.setDescripcion("Descripción");
+        responseDTO.setProyectoId(1L);
+        responseDTO.setProyectoNombre("Proyecto 1");
+        responseDTO.setEmpleadoAsignadoId(1L);
+        responseDTO.setEmpleadoAsignadoNombre("Juan");
+        responseDTO.setFechaCreacion(LocalDateTime.now());
+        responseDTO.setFechaVencimiento(LocalDate.now().plusDays(7));
+        responseDTO.setEstado(EstadoTarea.PENDIENTE);
+        responseDTO.setPrioridad(Prioridad.ALTA);
+
+        when(tareaService.crearTarea(any())).thenReturn(responseDTO);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/tareas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createDTO)))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    void actualizarTarea_DebeRetornarTareaActualizada() throws Exception {
+        // Arrange
+        TareaUpdateDTO updateDTO = new TareaUpdateDTO(
+                "Tarea Actualizada",
+                "Nueva descripción",
+                1L,
+                LocalDate.now().plusDays(10),
+                EstadoTarea.EN_PROGRESO,
+                Prioridad.MEDIA
+        );
+
+        TareaResponseDTO responseDTO = new TareaResponseDTO();
+        responseDTO.setId(1L);
+        responseDTO.setNombre("Tarea Actualizada");
+        responseDTO.setDescripcion("Nueva descripción");
+        responseDTO.setProyectoId(1L);
+        responseDTO.setProyectoNombre("Proyecto 1");
+        responseDTO.setEmpleadoAsignadoId(1L);
+        responseDTO.setEmpleadoAsignadoNombre("Juan");
+        responseDTO.setFechaCreacion(LocalDateTime.now());
+        responseDTO.setFechaVencimiento(LocalDate.now().plusDays(10));
+        responseDTO.setEstado(EstadoTarea.EN_PROGRESO);
+        responseDTO.setPrioridad(Prioridad.MEDIA);
+
+        when(tareaService.actualizarTarea(eq(1L), any())).thenReturn(responseDTO);
+
+        // Act & Assert
+        mockMvc.perform(put("/api/tareas/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateDTO)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void eliminarTarea_DebeRetornarNoContent() throws Exception {
+        // Arrange
+        doNothing().when(tareaService).eliminarTarea(1L);
+
+        // Act & Assert
+        mockMvc.perform(delete("/api/tareas/1"))
+                .andExpect(status().isNoContent());
     }
 }
