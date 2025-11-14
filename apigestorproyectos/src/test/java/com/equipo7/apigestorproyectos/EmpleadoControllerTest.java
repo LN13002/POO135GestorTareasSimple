@@ -1,181 +1,146 @@
 package com.equipo7.apigestorproyectos;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-
-import org.junit.jupiter.api.DisplayName;
+import com.equipo7.apigestorproyectos.controllers.EmpleadoController;
+import com.equipo7.apigestorproyectos.dto.respuesta.EmpleadoResponseDTO;
+import com.equipo7.apigestorproyectos.dto.solicitud.EmpleadoCreateDTO;
+import com.equipo7.apigestorproyectos.dto.solicitud.EmpleadoUpdateDTO;
+import com.equipo7.apigestorproyectos.services.EmpleadoService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
-import com.equipo7.apigestorproyectos.controllers.RegistroHorasController;
-import com.equipo7.apigestorproyectos.dto.RegistroHorasDTO;
-import com.equipo7.apigestorproyectos.dto.solicitud.RegistroHorasCreateDTO;
-import com.equipo7.apigestorproyectos.exceptions.ResourceNotFoundException;
-import com.equipo7.apigestorproyectos.services.RegistroHorasService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDate;
+import java.util.Arrays;
 
-@WebMvcTest(RegistroHorasController.class)
-@DisplayName("Tests del Controller de Registro de Horas")
-public class EmpleadoControllerTest {
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@WebMvcTest(EmpleadoController.class)
+class EmpleadoControllerTest {
+
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
+    @MockitoBean
+    private EmpleadoService empleadoService;
+
     private ObjectMapper objectMapper;
 
-    @MockBean
-    private RegistroHorasService registroHorasService;
-
-    @Test
-    @DisplayName("GET /api/registrohoras - Debe listar todos los registros")
-    void debeListarTodosLosRegistros() throws Exception {
-        RegistroHorasDTO registro1 = crearRegistroHorasDTO(1L, new BigDecimal("8.0"));
-        RegistroHorasDTO registro2 = crearRegistroHorasDTO(2L, new BigDecimal("6.5"));
-        List<RegistroHorasDTO> registros = Arrays.asList(registro1, registro2);
-
-        when(registroHorasService.listarRegistros()).thenReturn(registros);
-
-        mockMvc.perform(get("/api/registrohoras")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].horasRegistradas").value(8.0))
-                .andExpect(jsonPath("$[1].horasRegistradas").value(6.5));
+    @BeforeEach
+    void setUp() {
+        objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
     }
 
     @Test
-    @DisplayName("GET /api/registrohoras/{id} - Debe obtener registro por ID")
-    void debeObtenerRegistroPorId() throws Exception {
-        Long registroId = 1L;
-        RegistroHorasDTO registro = crearRegistroHorasDTO(registroId, new BigDecimal("8.5"));
-
-        when(registroHorasService.obtenerPorId(registroId)).thenReturn(registro);
-
-        mockMvc.perform(get("/api/registrohoras/{id}", registroId)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(registroId))
-                .andExpect(jsonPath("$.horasRegistradas").value(8.5));
-    }
-
-    @Test
-    @DisplayName("GET /api/registrohoras/{id} - Debe retornar 404 cuando registro no existe")
-    void debeRetornar404CuandoRegistroNoExiste() throws Exception {
-        Long registroId = 999L;
-        when(registroHorasService.obtenerPorId(registroId))
-                .thenThrow(new ResourceNotFoundException("Registro no encontrado"));
-
-        mockMvc.perform(get("/api/registrohoras/{id}", registroId)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @DisplayName("POST /api/registrohoras - Debe crear registro exitosamente")
-    void debeCrearRegistroExitosamente() throws Exception {
-        RegistroHorasCreateDTO createDTO = new RegistroHorasCreateDTO(
-                1L, // tareaId
-                2L, // empleadoId
-                LocalDate.now(),
-                new BigDecimal("8.0"),
-                "Desarrollo de funcionalidades",
-                LocalDateTime.now());
-
-        RegistroHorasDTO responseDTO = crearRegistroHorasDTO(1L, new BigDecimal("8.0"));
-
-        when(registroHorasService.guardarRegistro(any(RegistroHorasCreateDTO.class)))
-                .thenReturn(responseDTO);
-
-        mockMvc.perform(post("/api/registrohoras")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(createDTO)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.horasRegistradas").value(8.0));
-    }
-
-    @Test
-    @DisplayName("POST /api/registrohoras - Debe retornar 400 cuando horas son inválidas")
-    void debeRetornar400CuandoHorasSonInvalidas() throws Exception {
-        RegistroHorasCreateDTO createDTO = new RegistroHorasCreateDTO(
+    void listarEmpleados_DebeRetornarPaginaDeEmpleados() throws Exception {
+        // Arrange
+        EmpleadoResponseDTO empleado = new EmpleadoResponseDTO(
                 1L,
-                2L,
-                LocalDate.now(),
-                null, // horas nulas (inválido)
-                "Descripción",
-                LocalDateTime.now());
+                "Juan Pérez",
+                "juan@example.com",
+                "Desarrollador",
+                LocalDate.of(2024, 1, 1),
+                true
+        );
+        Page<EmpleadoResponseDTO> page = new PageImpl<>(Arrays.asList(empleado));
+        when(empleadoService.list(anyString(), any(), any())).thenReturn(page);
 
-        mockMvc.perform(post("/api/registrohoras")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(createDTO)))
-                .andExpect(status().isBadRequest());
+        // Act & Assert
+        mockMvc.perform(get("/api/empleados"))
+                .andExpect(status().isOk());
     }
 
     @Test
-    @DisplayName("POST /api/registrohoras - Debe retornar 404 cuando empleado no existe")
-    void debeRetornar404CuandoEmpleadoNoExiste() throws Exception {
-        RegistroHorasCreateDTO createDTO = new RegistroHorasCreateDTO(
+    void obtenerEmpleadoPorId_DebeRetornarEmpleado() throws Exception {
+        // Arrange
+        EmpleadoResponseDTO empleado = new EmpleadoResponseDTO(
                 1L,
-                999L, // empleadoId que no existe
-                LocalDate.now(),
-                new BigDecimal("8.0"),
-                "Descripción",
-                LocalDateTime.now());
+                "Juan Pérez",
+                "juan@example.com",
+                "Desarrollador",
+                LocalDate.of(2024, 1, 1),
+                true
+        );
+        when(empleadoService.getById(1L)).thenReturn(empleado);
 
-        when(registroHorasService.guardarRegistro(any(RegistroHorasCreateDTO.class)))
-                .thenThrow(new ResourceNotFoundException("Empleado no encontrado"));
-
-        mockMvc.perform(post("/api/registrohoras")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(createDTO)))
-                .andExpect(status().isNotFound());
+        // Act & Assert
+        mockMvc.perform(get("/api/empleados/1"))
+                .andExpect(status().isOk());
     }
 
     @Test
-    @DisplayName("DELETE /api/registrohoras/{id} - Debe eliminar registro exitosamente")
-    void debeEliminarRegistroExitosamente() throws Exception {
-        Long registroId = 1L;
-        doNothing().when(registroHorasService).eliminarRegistro(registroId);
+    void crearEmpleado_DebeRetornarEmpleadoCreado() throws Exception {
+        // Arrange
+        EmpleadoCreateDTO createDTO = new EmpleadoCreateDTO(
+                "Juan Pérez",
+                "juan@example.com",
+                "Desarrollador",
+                LocalDate.of(2024, 1, 1),
+                true
+        );
+        EmpleadoResponseDTO responseDTO = new EmpleadoResponseDTO(
+                1L,
+                "Juan Pérez",
+                "juan@example.com",
+                "Desarrollador",
+                LocalDate.of(2024, 1, 1),
+                true
+        );
+        when(empleadoService.create(any())).thenReturn(responseDTO);
 
-        mockMvc.perform(delete("/api/registrohoras/{id}", registroId)
-                .contentType(MediaType.APPLICATION_JSON))
+        // Act & Assert
+        mockMvc.perform(post("/api/empleados")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createDTO)))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    void actualizarEmpleado_DebeRetornarEmpleadoActualizado() throws Exception {
+        // Arrange
+        EmpleadoUpdateDTO updateDTO = new EmpleadoUpdateDTO(
+                "Juan Pérez Actualizado",
+                "juan.nuevo@example.com",
+                "Senior Developer",
+                LocalDate.of(2024, 1, 1),
+                true
+        );
+        EmpleadoResponseDTO responseDTO = new EmpleadoResponseDTO(
+                1L,
+                "Juan Pérez Actualizado",
+                "juan.nuevo@example.com",
+                "Senior Developer",
+                LocalDate.of(2024, 1, 1),
+                true
+        );
+        when(empleadoService.update(eq(1L), any())).thenReturn(responseDTO);
+
+        // Act & Assert
+        mockMvc.perform(put("/api/empleados/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateDTO)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void eliminarEmpleado_DebeRetornarNoContent() throws Exception {
+        // Arrange
+        doNothing().when(empleadoService).delete(1L);
+
+        // Act & Assert
+        mockMvc.perform(delete("/api/empleados/1"))
                 .andExpect(status().isNoContent());
-    }
-
-    @Test
-    @DisplayName("DELETE /api/registrohoras/{id} - Debe retornar 404 cuando registro no existe")
-    void debeRetornar404AlEliminarRegistroNoExistente() throws Exception {
-        Long registroId = 999L;
-        doThrow(new ResourceNotFoundException("Registro no encontrado"))
-                .when(registroHorasService).eliminarRegistro(registroId);
-
-        mockMvc.perform(delete("/api/registrohoras/{id}", registroId)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
-    }
-
-    private RegistroHorasDTO crearRegistroHorasDTO(Long id, BigDecimal horas) {
-        return new RegistroHorasDTO(
-                id,
-                1L, // tareaId
-                2L, // empleadoId
-                LocalDate.now(),
-                horas,
-                "Desarrollo de funcionalidades",
-                LocalDateTime.now());
     }
 }
