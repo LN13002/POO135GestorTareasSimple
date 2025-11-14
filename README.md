@@ -649,15 +649,13 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo [LICENSE](LICENSE) para
 
 Para consultas, reportar bugs o sugerencias:
 
-- 📧 Email del equipo: ln13002@ues.edu.sv
-- 🐛 Issues: [GitHub Issues](https://github.com/LN13002/POO135GestorTareasSimple/issues)
-- 📖 Wiki: [Documentación adicional](https://github.com/LN13002/POO135GestorTareasSimple/wiki)
+- 📧 Email del equipo: gs24037@ues.edu.sv, pc24020@ues.edu.sv, rl15028@ues.edu.sv, ga24023@ues.edu.sv, ln13002@ues.edu.sv
 
 ---
 
 ## 🙏 Agradecimientos
 
-- Universidad de El Salvador - Facultad de Ingeniería y Arquitectura
+- Universidad de El Salvador - Facultad MUltidisciplinaría de Occidente
 - Cátedra de Programación Orientada a Objetos (POO135)
 - Todos los miembros del equipo por su dedicación y esfuerzo
 
